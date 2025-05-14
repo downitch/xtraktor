@@ -1,0 +1,29 @@
+{
+  "name": "xtraktor",
+  "version": "0.0.1",
+  "description": "a tool to extract links from JS files using puppeteer and AI",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "extract",
+    "tool",
+    "open-source",
+    "source",
+    "js",
+    "javascript",
+    "url",
+    "link",
+    "uri",
+    "typescript",
+    "json"
+  ],
+  "author": "downitch",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "puppeteer": "^24.8.2"
+  }
+}
