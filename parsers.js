@@ -30,6 +30,8 @@ export async function parsePage(targetUrl, targetCookies = null) {
   });
 
   try {
+    const customUA = 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:138.0) Gecko/20100101 Firefox/138.1';
+    await page.setUserAgent(customUA);
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
   } catch (err) {
     console.error(`Failed to load page: ${err.message}`);

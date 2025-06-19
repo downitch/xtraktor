@@ -13,6 +13,22 @@ Currently there are two dependencies:
 
  I've opted using puppeteer since it allows me to also scan SPAs.
 
+## How to install
+
+Make sure you have node.js, npm and git installed in your system, then do this:
+
+```bash
+git clone https://github.com/downitch/xtraktor.git
+cd xtraktor
+npm install
+```
+
+Or a one-liner:
+
+```bash
+git clone https://github.com/downitch/xtraktor.git && cd xtraktor && npm install
+```
+
 ## How to use
 
  ```bash

@@ -62,8 +62,5 @@ export function normalizeCookies(domain, targetCookies) {
 };
 
 export function printBanner() {
-  const version = '0.0.1';
-  const updateDate = '05.14.2025';
-  const author = 'downitch';
   console.log(`xtraktor - a tool to extract possible URLs from JS files.\nversion: ${version}\nlast update: ${updateDate}\nauthor: ${author}\n`);
 };
