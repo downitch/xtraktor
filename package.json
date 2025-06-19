@@ -1,7 +1,7 @@
 {
   "name": "xtraktor",
   "version": "0.0.1",
-  "description": "a tool to extract links from JS files using puppeteer and AI",
+  "description": "a tool to extract links from JS files using puppeteer",
   "type": "module",
   "main": "index.js",
   "scripts": {
