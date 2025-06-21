@@ -60,8 +60,8 @@ export async function parseContents(target, domain) {
   }
 
   for (let endpoint of foundEndpoints) {
-    // Clean up trailing quotes or parens
-    endpoint = endpoint.replace(/['")]+$/, '');
+    // Clean up quotes
+    endpoint = endpoint.replace(/['"`]*/g, '');
     // If not a full URL, prepend domain
     if (!/^https?:\/\//.test(endpoint)) {
       const normalized = domain.replace(/\/+$/, '') + endpoint;

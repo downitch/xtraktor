@@ -60,7 +60,3 @@ export function normalizeCookies(domain, targetCookies) {
     process.exit(1);
   }
 };
-
-export function printBanner() {
-  console.log(`xtraktor - a tool to extract possible URLs from JS files.\nversion: ${version}\nlast update: ${updateDate}\nauthor: ${author}\n`);
-};

@@ -10,6 +10,11 @@ export const UNIVERSAL_REGEX = new RegExp(
     /\b(?:fetch|axios\.\w+)\(['"]([^'"${}]+)['"]\)/,
     // ("/...") relative paths in parenthesis
     // /(^.*?("|')(\/[\w\d\W\?\/&=\#\.\!:_-]*?)(\2).*$)/,
+    /this\.fetch\(this\.url\("([^"]+)"\)/,
+    /"\?(.*?)"/,
+    /"\/(.*?)"/,
+    /'\/(.*?)'/,
+    /`\/(.*?)`/
   ]
     .map(r => r.source)
     .join('|'),
