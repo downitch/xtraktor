@@ -42,10 +42,20 @@ export function normalizeTarget(targetRaw) {
   }
 };
 
+export function normalizeUserAgent(targetUserAgent) {
+  try {
+    const rawUserAgent = targetUserAgent.indexOf('User-Agent:') !== -1 ? targetUserAgent : `User-Agent: ${targetUserAgent}`;
+    return rawUserAgent;
+  } catch(err) {
+    console.error(`Invalid User-Agent: ${targetUserAgent}`);
+    process.exit(1);
+  }
+};
+
 export function normalizeCookies(domain, targetCookies) {
   try {
     const normalizedCookies = [];
-    const rawCookies = targetCookies.indexOf('Cookies:') != -1 ? targetCookies.substring(7, targetCookies.length - 1) : targetCookies;
+    const rawCookies = targetCookies.indexOf('Cookies:') !== -1 ? targetCookies.substring(7, targetCookies.length - 1) : targetCookies;
     const cookies = rawCookies.split(';');
     for(const cookie of cookies) {
       normalizedCookies.push({

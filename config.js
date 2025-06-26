@@ -1,3 +1,5 @@
+export const DIMENSIONS = {width:1600, height:900};
+
 export const OUTPUT_DIR = './output';
 
 export const UNIVERSAL_REGEX = new RegExp(
