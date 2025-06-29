@@ -31,18 +31,21 @@ git clone https://github.com/downitch/xtraktor.git && cd xtraktor && npm install
 
 ## How to use
 
- ```bash
-node index.js -d "domain.name" -c "cookies..."
- ```
+```bash
+node index.js -l "domain.name" -c "cookies..." -u "user-agent"
+```
 
- Current version only supports one domain name and one set of cookies that are passed in a following form:
+Current version only supports one domain name, one set of cookies and one user-agent. Cookies are passed in a following form:
 
 ```bash
 name=value; name1=value1; ...
 ```
 
+There is a `config.js` file that contains some constants and output directory, you can mess with it if you like :)
+
 ## TODO
 
-- add support for custom User-Agents
 - multithreading
+- dummy mode (headless)
+- recursive crawl
 - fail-safe mechanisms

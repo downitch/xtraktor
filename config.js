@@ -27,8 +27,8 @@ export const LIVELINESS_HEADERS = {
 
 export const FLAGS_WITH_VALUES = {
   '-l': 'URL',
-  '-u': 'userAgent',
   '-c': 'cookies',
+  '-u': 'userAgent'
 };
 
 export const BOOLEAN_FLAGS = {
