@@ -2,35 +2,55 @@ import path from 'path';
 import { readdir, readFile } from 'fs/promises';
 import puppeteer from 'puppeteer';
 
-import { DIMENSIONS, UNIVERSAL_REGEX, OUTPUT_DIR } from './config.js';
+import { DIMENSIONS, UNIVERSAL_REGEX, OUTPUT_DIR, 
+         DEFAULT_USER_AGENT, LIVELINESS_HEADERS,
+         FLAGS_WITH_VALUES, BOOLEAN_FLAGS } from './config.js';
 
 export function parseArgs() {
-  const helpFlagIndex = process.argv.indexOf('--help');
-  const domainFlagIndex = process.argv.indexOf('-d');
-  const cookiesFlagIndex = process.argv.indexOf('-c');
-  const useragentFlagIndex = process.argv.indexOf('-u');
-  if (helpFlagIndex !== -1) {
-    console.log('\nUsage: node index.js -d "example.com" [-u "<User-Agent>" -c "<Cookies>"]\n');
-    process.exit(0);
+  const args = process.argv.slice(2);
+  const options = {};
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--help') {
+      console.log('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?>]\n');
+      process.exit(0);
+    }
+    if (FLAGS_WITH_VALUES[arg]) {
+      const value = args[i + 1];
+      if (!value || value.startsWith('-')) {
+        console.error(`\nMissing value for ${arg}`);
+        process.exit(1);
+      }
+      options[FLAGS_WITH_VALUES[arg]] = value;
+      i++;
+    } else if (BOOLEAN_FLAGS[arg]) {
+      options[BOOLEAN_FLAGS[arg]] = true;
+    }
   }
-  if (domainFlagIndex === -1 || !process.argv[domainFlagIndex + 1]) {
-    console.error('\nUsage: node index.js -d "example.com" [-u "<User-Agent>" -c "<Cookies>"]\nManual: node index.js --help\n');
+  if (!options.URL) {
+    console.error('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?>]\nManual: node index.js --help\n');
     process.exit(1);
   }
-  let customArgs = [process.argv[domainFlagIndex + 1]];
-  if(cookiesFlagIndex !== -1) customArgs = [...customArgs, process.argv[cookiesFlagIndex + 1]];
-  if(useragentFlagIndex !== -1) customArgs = [...customArgs, process.argv[useragentFlagIndex + 1]];
-  return [...customArgs];
+  return options;
 };
 
 export async function parsePage(params) {
-  const { targetUrl, targetFormat, targetCookies, targetUserAgent } = params;
+  const { targetUrl, targetFormat, targetCookies, targetUserAgent } = {
+    targetUrl: null,
+    targetFormat: null,
+    targetCookies: null,
+    targetUserAgent: null,
+    ...params
+  };
+  if(targetUrl === null) {
+    console.error('URL is not provided properly...\nUsage: node index.js -l "<URL>"');
+    process.exit(1);
+  }
   const browserSettings = !targetFormat ? {
     headless: false,
     ignoreHTTPSErrors: true,
     args: [`--window-size=${DIMENSIONS.width},${DIMENSIONS.height}`]
   } : { headless: 'new' };
-
   const browser = await puppeteer.launch(browserSettings);
 
   if(targetCookies != null) browser.setCookie(...targetCookies);
@@ -50,8 +70,11 @@ export async function parsePage(params) {
   });
 
   try {
-    const customUA = targetUserAgent ? targetUserAgent : 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:138.0) Gecko/20100101 Firefox/138.1';
+    const customUA = targetUserAgent ? targetUserAgent : DEFAULT_USER_AGENT;
     await page.setUserAgent(customUA);
+    // additional headers to make it less obvious
+    await page.setExtraHTTPHeaders(LIVELINESS_HEADERS);
+    // now let's visit the page
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 60000 });
   } catch (err) {
     console.error(`Failed to load page: ${err.message}`);

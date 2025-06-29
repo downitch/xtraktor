@@ -59,7 +59,7 @@ export function normalizeCookies(domain, targetCookies) {
     const cookies = rawCookies.split(';');
     for(const cookie of cookies) {
       normalizedCookies.push({
-        domain: domain.match(/\/\/(.*)\//)[1],
+        domain: domain.match(/\/?\/?(.*)\/?/)[1],
         name: cookie.split('=')[0].trim(),
         value: cookie.split('=')[1].trim()
       });

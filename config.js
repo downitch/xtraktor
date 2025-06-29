@@ -17,3 +17,21 @@ export const UNIVERSAL_REGEX = new RegExp(
     .join('|'),
   'g'
 );
+
+export const DEFAULT_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
+
+export const LIVELINESS_HEADERS = {
+  'accept-language': 'en-US,en;q=0.9',
+  'connection': 'keep-alive'
+};
+
+export const FLAGS_WITH_VALUES = {
+  '-l': 'URL',
+  '-u': 'userAgent',
+  '-c': 'cookies',
+};
+
+export const BOOLEAN_FLAGS = {
+  '-r': 'recursive',
+  '-d': 'dummy'
+};
