@@ -1,7 +1,8 @@
 import { parseArgs, parsePage, parseContents } from './parsers.js';
-import { downloadFiles, normalizeTarget, normalizeCookies, normalizeUserAgent } from './middleware.js';
+import { printBanner, downloadFiles, normalizeTarget, normalizeCookies, normalizeUserAgent } from './middleware.js';
 
 async function init() {
+  printBanner();
   const parsedArguments = parseArgs();
   const targetUrl = normalizeTarget(parsedArguments.URL);
   const targetCookies = parsedArguments.cookies ? normalizeCookies(parsedArguments.URL, parsedArguments.cookies) : null;

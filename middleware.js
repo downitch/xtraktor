@@ -6,30 +6,47 @@ import fetch from 'node-fetch';
 
 import { OUTPUT_DIR } from './config.js'; 
 
+export function printBanner() {
+  console.log(`
+
+▒██   ██▒▄▄▄█████▓ ██▀███   ▄▄▄       ██ ▄█▀▄▄▄█████▓ ▒█████   ██▀███  
+▒▒ █ █ ▒░▓  ██▒ ▓▒▓██ ▒ ██▒▒████▄     ██▄█▒ ▓  ██▒ ▓▒▒██▒  ██▒▓██ ▒ ██▒
+░░  █   ░▒ ▓██░ ▒░▓██ ░▄█ ▒▒██  ▀█▄  ▓███▄░ ▒ ▓██░ ▒░▒██░  ██▒▓██ ░▄█ ▒
+ ░ █ █ ▒ ░ ▓██▓ ░ ▒██▀▀█▄  ░██▄▄▄▄██ ▓██ █▄ ░ ▓██▓ ░ ▒██   ██░▒██▀▀█▄  
+▒██▒ ▒██▒  ▒██▒ ░ ░██▓ ▒██▒ ▓█   ▓██▒▒██▒ █▄  ▒██▒ ░ ░ ████▓▒░░██▓ ▒██▒
+▒▒ ░ ░▓ ░  ▒ ░░   ░ ▒▓ ░▒▓░ ▒▒   ▓▒█░▒ ▒▒ ▓▒  ▒ ░░   ░ ▒░▒░▒░ ░ ▒▓ ░▒▓░
+░░   ░▒ ░    ░      ░▒ ░ ▒░  ▒   ▒▒ ░░ ░▒ ▒░    ░      ░ ▒ ▒░   ░▒ ░ ▒░
+ ░    ░    ░        ░░   ░   ░   ▒   ░ ░░ ░   ░      ░ ░ ░ ▒    ░░   ░ 
+ ░    ░              ░           ░  ░░  ░                ░ ░     ░
+  xtraktor - puppeteer based tool to extract endpoints from JS files.
+                          author: @downitch
+     support and contribute: https://github.com/downitch/xtraktor
+`);
+};
+
 export async function downloadFiles(target, files) {
   const baseDir = path.join(OUTPUT_DIR, target);
   const tempDir = path.join(baseDir, 'temp');
   await mkdir(tempDir, { recursive: true });
-
   const tasks = files.map(async (url) => {
     try {
-      const urlObj = new URL(url);
-      const baseName = path.basename(urlObj.pathname);
-      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      const { pathname } = new URL(url);
+      const baseName = path.basename(pathname).split('?')[0] || 'file';
+      const randomSuffix = Math.random().toString(36).slice(2, 8);
       const fileName = `${baseName}_${randomSuffix}.js`;
       const filePath = path.resolve(tempDir, fileName);
 
       const response = await fetch(url);
-      if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.status}`);
-
-      const fileStream = fs.createWriteStream(filePath, { flags: 'wx' });
-      await finished(response.body.pipe(fileStream));
+      if (!response.ok || !response.body) {
+        throw new Error(`Bad response: ${response.status}`);
+      }
+      const nodeReadable = typeof response.body.pipe === 'function' ? response.body : Readable.fromWeb(response.body);
+      await finished(nodeReadable.pipe(fs.createWriteStream(filePath, { flags: 'wx' })));
       console.log(`Downloaded: ${url}`);
     } catch (err) {
       console.warn(`Skipped ${url}: ${err.message}`);
     }
   });
-
   await Promise.allSettled(tasks);
 };
 
