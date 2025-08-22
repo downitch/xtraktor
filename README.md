@@ -1,5 +1,9 @@
 # xtraktor
 
+## IMPORTANT
+
+This is an experimental branch where I am trying to add AI to the project. Let's see if it works.
+
 ## Description
 
 This is a simple tool that scans JS files from web-page and tries to extract additional endpoints from it.
