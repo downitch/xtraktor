@@ -10,7 +10,7 @@ export function parseArgs() {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--help') {
-      console.log('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?>]\n');
+      console.log('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?> -k <Katana?> -g <GAU?> -w <Waybackurls?> -ai <AI analysis?>]\n');
       process.exit(0);
     }
     if (FLAGS_WITH_VALUES[arg]) {
@@ -26,7 +26,7 @@ export function parseArgs() {
     }
   }
   if (!options.URL) {
-    console.error('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?>]\nManual: node index.js --help\n');
+    console.error('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?> -k <Katana?> -g <GAU?> -w <Waybackurls?> -ai <AI analysis?>]\nManual: node index.js --help\n');
     process.exit(1);
   }
   return options;
@@ -112,8 +112,5 @@ export async function parseContents(target, domain) {
     normalizedEndpoints.add(fullUrl);
   }
 
-  console.log(`\nFound ${normalizedEndpoints.size} unique endpoints:\n`);
-  for (const ep of normalizedEndpoints) {
-    console.log(ep);
-  }
+  return normalizedEndpoints;
 };

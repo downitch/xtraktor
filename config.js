@@ -33,5 +33,9 @@ export const FLAGS_WITH_VALUES = {
 
 export const BOOLEAN_FLAGS = {
   '-r': 'recursive',
-  '-d': 'dummy'
+  '-d': 'dummy',
+  '-k': 'katana',
+  '-g': 'gau',
+  '-w': 'wayback',
+  '-ai': 'ai'
 };

@@ -3,6 +3,7 @@ import path from 'path';
 import { mkdir } from 'fs/promises';
 import { finished } from 'stream/promises';
 import fetch from 'node-fetch';
+import { execSync, spawn } from 'child_process';
 
 import { OUTPUT_DIR } from './config.js'; 
 
