@@ -1,6 +1,7 @@
 import path from 'path';
 import { readdir, readFile } from 'fs/promises';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 import { DIMENSIONS, UNIVERSAL_REGEX, OUTPUT_DIR, DEFAULT_USER_AGENT, LIVELINESS_HEADERS, FLAGS_WITH_VALUES, BOOLEAN_FLAGS } from './config.js';  
 
@@ -45,15 +46,24 @@ export async function parsePage(params = {}) {
     process.exit(1);
   }
 
+  puppeteer.use(StealthPlugin());
+
   const browser = await puppeteer.launch(
-    targetFormat ? { headless: 'new' } : { headless: false, ignoreHTTPSErrors: true, args: [`--window-size=${DIMENSIONS.width},${DIMENSIONS.height}`] }
+    targetFormat ? { headless: 'new' } : {
+      headless: false, ignoreHTTPSErrors: true, args: [
+        `--window-size=${DIMENSIONS.width},${DIMENSIONS.height}`,'--proxy-server=127.0.0.1:8080'
+      ] 
+    }
   );
 
-  if (targetCookies) {
-    await browser.setCookie(...targetCookies);
-  }
+  const context = browser.defaultBrowserContext();
 
-  const page = await browser.newPage();
+  const page = await context.newPage();
+
+  if (targetCookies) {
+    // console.log(targetCookies);
+    await context.setCookie(...targetCookies);
+  }
 
   await page.setViewport({
     width: DIMENSIONS.width,
