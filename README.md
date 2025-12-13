@@ -32,7 +32,7 @@ git clone https://github.com/downitch/xtraktor.git && cd xtraktor && npm install
 ## How to use
 
 ```bash
-node index.js -l "domain.name" -c "cookies..." -u "user-agent"
+node index.js -l "domain.name" -c "cookies..." -u "user-agent" -H "headers" -H ...
 ```
 
 Current version only supports one domain name, one set of cookies and one user-agent. Cookies are passed in a following form:
