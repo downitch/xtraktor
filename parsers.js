@@ -11,7 +11,7 @@ export function parseArgs() {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--help') {
-      console.log('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?>]\n');
+      console.log('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -H "<Headers>" -r <Recursive?>]\n');
       process.exit(0);
     }
     if (FLAGS_WITH_VALUES[arg]) {
@@ -20,14 +20,16 @@ export function parseArgs() {
         console.error(`\nMissing value for ${arg}`);
         process.exit(1);
       }
-      options[FLAGS_WITH_VALUES[arg]] = value;
+      if (arg === '-H') {
+        options[FLAGS_WITH_VALUES[arg]] = [...Array.from(options[FLAGS_WITH_VALUES[arg]] ? options[FLAGS_WITH_VALUES[arg]] : []), value];
+      } else options[FLAGS_WITH_VALUES[arg]] = value;
       i++;
     } else if (BOOLEAN_FLAGS[arg]) {
       options[BOOLEAN_FLAGS[arg]] = true;
     }
   }
   if (!options.URL) {
-    console.error('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -r <Recursive?>]\nManual: node index.js --help\n');
+    console.error('\nUsage: node index.js -l "<URL>" [-u "<User-Agent>" -c "<Cookies>" -H "<Headers>" -r <Recursive?>]\nManual: node index.js --help\n');
     process.exit(1);
   }
   return options;
@@ -39,6 +41,7 @@ export async function parsePage(params = {}) {
     targetFormat,
     targetCookies,
     targetUserAgent,
+    targetHeaders
   } = params;
 
   if (!targetUrl) {
@@ -51,7 +54,7 @@ export async function parsePage(params = {}) {
   const browser = await puppeteer.launch(
     targetFormat ? { headless: 'new' } : {
       headless: false, ignoreHTTPSErrors: true, args: [
-        `--window-size=${DIMENSIONS.width},${DIMENSIONS.height}`,'--proxy-server=127.0.0.1:8080'
+        `--window-size=${DIMENSIONS.width},${DIMENSIONS.height}`
       ] 
     }
   );
@@ -61,7 +64,6 @@ export async function parsePage(params = {}) {
   const page = await context.newPage();
 
   if (targetCookies) {
-    // console.log(targetCookies);
     await context.setCookie(...targetCookies);
   }
 
@@ -72,7 +74,10 @@ export async function parsePage(params = {}) {
   });
 
   await page.setUserAgent(targetUserAgent || DEFAULT_USER_AGENT);
-  await page.setExtraHTTPHeaders(LIVELINESS_HEADERS);
+
+  if (targetHeaders) {
+    page.setExtraHTTPHeaders({...LIVELINESS_HEADERS, ...targetHeaders});
+  } else await page.setExtraHTTPHeaders(LIVELINESS_HEADERS);
 
   const jsFiles = new Set();
 
@@ -91,7 +96,7 @@ export async function parsePage(params = {}) {
   } catch (err) {
     console.error(`Failed to load page: ${err.message}`);
   } finally {
-    await browser.close();
+    // await browser.close();
   }
 
   return [...jsFiles];

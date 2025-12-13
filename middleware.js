@@ -91,3 +91,12 @@ export function normalizeCookies(domain, targetCookies) {
     process.exit(1);
   }
 };
+
+export function normalizeHeaders(headers) {
+  let parsedHeaders = {};
+  headers.forEach(element => {
+    const split = element.split(':');
+    parsedHeaders[split[0].trim()] = split[1].trim();
+  });
+  return parsedHeaders;
+}
