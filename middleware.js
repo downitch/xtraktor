@@ -4,7 +4,7 @@ import { mkdir } from 'fs/promises';
 import { finished } from 'stream/promises';
 import fetch from 'node-fetch';
 
-import { OUTPUT_DIR } from './config.js'; 
+import { OUTPUT_DIR, DEFAULT_USER_AGENT } from './config.js';
 
 export function printBanner() {
   console.log(`
@@ -24,7 +24,14 @@ export function printBanner() {
 `);
 };
 
-export async function downloadFiles(target, files) {
+export async function downloadFiles(params = {}) {
+  const {
+    target,
+    cookies,
+    headers,
+    userAgent,
+    files
+  } = params;
   const baseDir = path.join(OUTPUT_DIR, target);
   const tempDir = path.join(baseDir, 'temp');
   await mkdir(tempDir, { recursive: true });
@@ -33,16 +40,28 @@ export async function downloadFiles(target, files) {
       const { pathname } = new URL(url);
       const baseName = path.basename(pathname).split('?')[0] || 'file';
       const randomSuffix = Math.random().toString(36).slice(2, 8);
-      const fileName = `${baseName}_${randomSuffix}.js`;
+      const currentExtension = baseName.split('.').pop();
+      const fileName = `${baseName}_${randomSuffix}.${currentExtension}`;
       const filePath = path.resolve(tempDir, fileName);
-
-      const response = await fetch(url);
+      let stringifiedCookies = "";
+      for(const cookie of cookies) {
+        stringifiedCookies += `${cookie.name}=${cookie.value}`;
+      }
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'User-Agent': userAgent || DEFAULT_USER_AGENT,
+          'Cookie': stringifiedCookies,
+          ...headers
+        }
+      });
       if (!response.ok || !response.body) {
         throw new Error(`Bad response: ${response.status}`);
       }
       const nodeReadable = typeof response.body.pipe === 'function' ? response.body : Readable.fromWeb(response.body);
       await finished(nodeReadable.pipe(fs.createWriteStream(filePath, { flags: 'wx' })));
-      console.log(`Downloaded: ${url}`);
+      if(url.includes('.map')) console.log(`[IMPORTANT] GOT SOURCE MAP ON: ${url}`);
+      else console.log(`Downloaded: ${url}`);
     } catch (err) {
       console.warn(`Skipped ${url}: ${err.message}`);
     }
@@ -72,11 +91,12 @@ export function normalizeUserAgent(targetUserAgent) {
 export function normalizeCookies(domain, targetCookies) {
   try {
     const normalizedCookies = [];
-    const rawCookies = targetCookies.indexOf('Cookie:') !== -1 ? targetCookies.substring(6, targetCookies.length) : targetCookies;
+    const rawCookies = targetCookies.indexOf('Cookie:') !== -1 ? targetCookies.substring(7, targetCookies.length) : targetCookies;
     const cookies = rawCookies.split(';');
     for(const cookie of cookies) {
+      if(cookie === "") continue;
       normalizedCookies.push({
-        domain: `${domain.split('//')[1]}`,
+        domain: `${domain.split('').reverse().join('').split('//')[0].split('').reverse().join('')}`,
         name: cookie.split('=')[0].replace(/[:;\*]/, '').trim(),
         value: cookie.split('=')[1].trim(),
         secure: true,
@@ -99,4 +119,15 @@ export function normalizeHeaders(headers) {
     parsedHeaders[split[0].trim()] = split[1].trim();
   });
   return parsedHeaders;
-}
+};
+
+export function normalizeRegexp(regex) {
+  const safe = regex instanceof RegExp
+    ? regex.source
+    : String(regex);
+  return new RegExp(safe, 'ig');
+};
+
+export function normalizeExtension(extension) {
+  return extension
+};

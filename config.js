@@ -29,7 +29,9 @@ export const FLAGS_WITH_VALUES = {
   '-l': 'URL',
   '-c': 'cookies',
   '-u': 'userAgent',
-  '-H': 'headers'
+  '-H': 'headers',
+  '-x': 'regexp',
+  '-e': 'extension'
 };
 
 export const BOOLEAN_FLAGS = {
